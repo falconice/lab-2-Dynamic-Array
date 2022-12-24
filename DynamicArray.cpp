@@ -10,14 +10,14 @@ template <typename T>
 DynamicArray<T>::DynamicArray(int capacity) {
   size_ = 0;
   capacity_ = capacity;
-  data_ = std::malloc(capacity_ * sizeof(T));
+  data_ = (T *)std::malloc(capacity_ * sizeof(T));
 }
 
 template <typename T>
 DynamicArray<T>::DynamicArray(const DynamicArray<T> &other) {
   size_ = other.size_;
   capacity_ = other.capacity_;
-  data_ = std::malloc(capacity_ * sizeof(T));
+  data_ = (T *)std::malloc(capacity_ * sizeof(T));
 
   for (int i = 0; i < size_; i++) {
     data_[i] = other.data_[i];
@@ -52,7 +52,11 @@ int DynamicArray<T>::Insert(const T &value) {
   size_++;
   if (capacity_ <= size_) {
     capacity_ *= 2;
-    data_ = std::realloc(capacity_ * sizeof(T));
+    T* new_arr = (T *)std::realloc(data_, capacity_ * sizeof(T));
+    if (new_arr == nullptr) {
+      return -1;
+    }
+    data_ = new_arr;
   }
 
   int index = size_ - 1;
@@ -90,14 +94,14 @@ template <typename T>
 const T &DynamicArray<T>::operator[](int index) const {
   // TODO: вставьте здесь оператор return
 
-    return data_[index];
+  return data_[index];
 }
 
 template <typename T>
 T &DynamicArray<T>::operator[](int index) {
   // TODO: вставьте здесь оператор return
 
-     return data_[index];
+  return data_[index];
 }
 
 template <typename T>
