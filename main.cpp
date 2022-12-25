@@ -10,6 +10,7 @@
 int main() {
   DynamicArray<int> dynamic_array;
   for (int i = 0; i < 10; ++i) dynamic_array.Insert(i + 1);
+  for (int i = 0; i < 2; ++i) dynamic_array.Remove(i);
 
   for (int i = 0; i < dynamic_array.Size(); ++i) dynamic_array[i] *= 2;
   for (auto it = dynamic_array.begin(); it.HasNext(); it.Next())
@@ -18,6 +19,8 @@ int main() {
   for (auto it = dynamic_array.crbegin(); it.HasNext(); it.Next())
     std::cout << it.Get() << std::endl;
 
+  // assert check
+  // std::cout << dynamic_array[-1];
 
   std::cout << "Hello World!\n";
 }

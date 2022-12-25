@@ -1,5 +1,6 @@
 #include "DynamicArray.h"
 
+#include <cassert>
 #include <cstdlib>
 #include <utility>
 
@@ -35,6 +36,9 @@ DynamicArray<T>::DynamicArray(DynamicArray<T> &&other) {
 
 template <typename T>
 DynamicArray<T>::~DynamicArray() {
+  for (int i = 0; i < size_; i++) {
+    data_[i].~T();
+  }
   std::free(data_);
 }
 
@@ -52,7 +56,7 @@ int DynamicArray<T>::Insert(const T &value) {
   size_++;
   if (capacity_ <= size_) {
     capacity_ *= 2;
-    T* new_arr = (T *)std::realloc(data_, capacity_ * sizeof(T));
+    T *new_arr = (T *)std::realloc(data_, capacity_ * sizeof(T));
     if (new_arr == nullptr) {
       return -1;
     }
@@ -67,13 +71,14 @@ int DynamicArray<T>::Insert(const T &value) {
 
 template <typename T>
 int DynamicArray<T>::Insert(int index, const T &value) {
-  // TODO: add move
-
+#ifdef _DEBUG
+  assert(index >= 0 && index < size_ && "Out of bounds error");
+#endif
   Insert(value);
   int new_index = index - 1;
 
   for (int i = size_ - 1; i > index; i--) {
-    data_[i] = data_[i - 1];
+    data_[i] = std::move(data_[i - 1]);
   }
 
   data_[index] = value;
@@ -83,24 +88,26 @@ int DynamicArray<T>::Insert(int index, const T &value) {
 
 template <typename T>
 void DynamicArray<T>::Remove(int index) {
+  data_[index].~T();
   for (int i = index; i < size_ - 1; i++) {
-    data_[i] = data_[i + 1];
+    data_[i] = std::move(data_[i + 1]);
   }
-
   size_--;
 }
 
 template <typename T>
 const T &DynamicArray<T>::operator[](int index) const {
-  // TODO: вставьте здесь оператор return
-
+#ifdef _DEBUG
+  assert(index >= 0 && index < size_ && "Out of bounds error");
+#endif
   return data_[index];
 }
 
 template <typename T>
 T &DynamicArray<T>::operator[](int index) {
-  // TODO: вставьте здесь оператор return
-
+#ifdef _DEBUG
+  assert(index >= 0 && index < size_ && "Out of bounds error");
+#endif
   return data_[index];
 }
 

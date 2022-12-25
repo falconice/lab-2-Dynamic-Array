@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iterator>
+#include <utility>
 
 template <typename T>
 
@@ -77,11 +78,17 @@ class DynamicArray final {
         const ArrayIterator_t<DynamicArrayType, G, isReversed>& other)
         : dynamic_array_(other.dynamic_array_), position_(other.position_) {}
 
-    // TODO:copy operator(((
+    // move
+    ArrayIterator_t(
+        const ArrayIterator_t<DynamicArrayType, G, isReversed>&& other)
+        : dynamic_array_(other.dynamic_array_), position_(other.position_) {
+      other.dynamic_array_ = nullptr;
+    }
+
     ArrayIterator_t& operator=(
-        ArrayIterator_t<DynamicArrayType, G, isReversed>& other) {
-      dynamic_array_ = other.dynamic_array_;
-      position_ = other.position_;
+        ArrayIterator_t<DynamicArrayType, G, isReversed> other) {
+      std::swap(dynamic_array_, other.dynamic_array_);
+      std::swap(position_, other.position_);
       return *this;
     };
 
@@ -158,8 +165,6 @@ class DynamicArray final {
       }
     }
 
-    // Оператор разыменования / перехода.
-    // Возвращает элемент, на который указывает итератор.
     G& operator*() const { return (*dynamic_array_)[position_]; }
 
     bool HasNext() const {
