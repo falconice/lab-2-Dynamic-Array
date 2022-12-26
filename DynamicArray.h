@@ -11,44 +11,47 @@ class DynamicArray final {
   class ArrayIterator_t;
 
  public:
-  DynamicArray();                              //+
-  DynamicArray(int capacity);                  //+
-  DynamicArray(const DynamicArray<T>& other);  //+ copy
-  DynamicArray(DynamicArray<T>&& other);       //+ move
-  ~DynamicArray();                             //+
+  DynamicArray();
+  DynamicArray(int capacity);
+  DynamicArray(const DynamicArray<T>& other);
+  DynamicArray(DynamicArray<T>&& other);
+  ~DynamicArray();
 
-  T& operator=(DynamicArray<T> other);  //+оператор = присваивани€
+  T& operator=(DynamicArray<T> other);
 
-  int Insert(const T& value);             //+ return index &increase
-  int Insert(int index, const T& value);  //+ return index
+  int Insert(const T& value);
+  int Insert(int index, const T& value);
 
-  void Remove(int index);  //+
+  void Remove(int index);
 
-  const T& operator[](int index) const;  //+
-  T& operator[](int index);              //+
+  const T& operator[](int index) const;
+  T& operator[](int index);
 
-  int Size() const;  //+
-
-  // friend
-  /* Iterator iterator();
-   ConstIterator iterator() const;
-
-   Iterator reverseIterator();
-   ConstIterator reverseIterator() const;*/
+  int Size() const;
 
   using Iterator = ArrayIterator_t<DynamicArray<T>, T, false>;
-  Iterator begin() { return Iterator(this); }
-  Iterator end() { return Iterator(this, size_); }
+  Iterator begin() {
+    return Iterator(this);
+  }
+  Iterator end() {
+    return Iterator(this, size_);
+  }
 
   using ConstIterator = ArrayIterator_t<const DynamicArray<T>, const T, false>;
-  ConstIterator cbegin() const { return ConstIterator(this); }
+  ConstIterator cbegin() const {
+    return ConstIterator(this);
+  }
   ConstIterator cend() const {
     return DynamicArray<T>::ConstIterator(this, size_);
   }
 
   using ReversedIterator = ArrayIterator_t<DynamicArray<T>, T, true>;
-  ReversedIterator rbegin() { return ReversedIterator(this, size_ - 1); }
-  ReversedIterator rend() { return ReversedIterator(this, -1); }
+  ReversedIterator rbegin() {
+    return ReversedIterator(this, size_ - 1);
+  }
+  ReversedIterator rend() {
+    return ReversedIterator(this, -1);
+  }
 
   using ConstReversedIterator =
       ArrayIterator_t<const DynamicArray<T>, const T, true>;
@@ -142,7 +145,6 @@ class DynamicArray final {
       return result;
     }
 
-    //  ќператоры сравнени€
     bool operator==(
         const ArrayIterator_t<DynamicArrayType, G, isReversed>& other) const {
       return dynamic_array_ == other.dynamic_array_ &&
@@ -153,7 +155,6 @@ class DynamicArray final {
         const ArrayIterator_t<DynamicArrayType, G, isReversed>& other) const {
       return !operator==(other);
     }
-
     bool operator<(
         const ArrayIterator_t<DynamicArrayType, G, isReversed>& other) const {
       if (isReversed) {
@@ -165,7 +166,9 @@ class DynamicArray final {
       }
     }
 
-    G& operator*() const { return (*dynamic_array_)[position_]; }
+    G& operator*() const {
+      return (*dynamic_array_)[position_];
+    }
 
     bool HasNext() const {
       if (isReversed) {
@@ -174,9 +177,15 @@ class DynamicArray final {
         return position_ < dynamic_array_->Size();
       }
     }
-    void Next() { operator++(); }
-    G& Get() const { return operator*(); };
-    void Set(const T& value) { operator*() = value; };
+    void Next() {
+      operator++();
+    }
+    G& Get() const {
+      return operator*();
+    };
+    void Set(const T& value) {
+      operator*() = value;
+    };
 
    private:
     DynamicArrayType* dynamic_array_;
