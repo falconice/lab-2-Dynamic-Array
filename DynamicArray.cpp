@@ -4,6 +4,10 @@
 #include <cstdlib>
 #include <utility>
 
+#ifdef _DEBUG
+#include <iostream>
+#endif
+
 template <typename T>
 DynamicArray<T>::DynamicArray() : DynamicArray(1) {}
 
@@ -21,7 +25,7 @@ DynamicArray<T>::DynamicArray(const DynamicArray<T> &other) {
   data_ = (T *)std::malloc(capacity_ * sizeof(T));
 
   for (int i = 0; i < size_; i++) {
-    data_[i] = other.data_[i];
+    new (data_ + i) T(other.data_[i]);
   }
 }
 
@@ -54,17 +58,31 @@ T &DynamicArray<T>::operator=(DynamicArray<T> other) {
 template <typename T>
 int DynamicArray<T>::Insert(const T &value) {
   size_++;
-  if (capacity_ <= size_) {
+  if (size_ == capacity_ + 1) {
     capacity_ *= 2;
-    T *new_arr = (T *)std::realloc(data_, capacity_ * sizeof(T));
+#ifdef TRY_USE_REALLOC
+    T *new_arr = (T *)std::realloc((void *)data_, capacity_ * sizeof(T));
+#else
+    T *new_arr = (T *)std::malloc(capacity_ * sizeof(T));
+#endif
     if (new_arr == nullptr) {
       return -1;
     }
-    data_ = new_arr;
+    if (new_arr != data_) {
+#ifdef _DEBUG
+      std::cerr << "Reallocation happened at capacity = " << capacity_
+                << " -> " << capacity_ * 2 <<  std::endl;
+#endif
+      for (int i = 0; i < size_ - 1; i++) {
+        new (new_arr + i) T(std::move(data_[i]));
+      }
+      std::free(data_);
+      data_ = new_arr;
+    }
   }
 
   int index = size_ - 1;
-  data_[index] = value;
+  new (data_ + index) T(value);
 
   return index;
 }
@@ -74,14 +92,21 @@ int DynamicArray<T>::Insert(int index, const T &value) {
 #ifdef _DEBUG
   assert(index >= 0 && index < size_ && "Out of bounds error");
 #endif
-  Insert(value);
-  int new_index = index - 1;
+  if (index == size_) {
+    Insert(value);
+    return index;
+  }
 
   for (int i = size_ - 1; i > index; i--) {
     data_[i] = std::move(data_[i - 1]);
   }
+  Insert(data_[size_ - 1]);
 
-  data_[index] = value;
+  T tmp = std::move(data_[size_ - 2]);
+  for (int i = size_ - 2; i > index; i--) {
+    new (data_ + i) T(std::move(data_[i - 1]));
+  }
+  new (data_ + index) T(value);
 
   return index;
 }
@@ -90,7 +115,7 @@ template <typename T>
 void DynamicArray<T>::Remove(int index) {
   data_[index].~T();
   for (int i = index; i < size_ - 1; i++) {
-    data_[i] = std::move(data_[i + 1]);
+    new (data_ + i) T(std::move(data_[i + 1]));
   }
   size_--;
 }
