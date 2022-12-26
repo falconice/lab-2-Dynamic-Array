@@ -58,7 +58,7 @@ T &DynamicArray<T>::operator=(DynamicArray<T> other) {
 template <typename T>
 int DynamicArray<T>::Insert(const T &value) {
   size_++;
-  if (size_ == capacity_) {
+  if (size_ == capacity_ + 1) {
     capacity_ *= 2;
 #ifdef TRY_USE_REALLOC
     T *new_arr = (T *)std::realloc((void *)data_, capacity_ * sizeof(T));
@@ -70,9 +70,10 @@ int DynamicArray<T>::Insert(const T &value) {
     }
     if (new_arr != data_) {
 #ifdef _DEBUG
-      std::cerr << "Reallocation happened at size = " << size_ << std::endl;
+      std::cerr << "Reallocation happened at capacity = " << capacity_
+                << " -> " << capacity_ * 2 <<  std::endl;
 #endif
-      for (int i = 0; i < size_; i++) {
+      for (int i = 0; i < size_ - 1; i++) {
         new (new_arr + i) T(std::move(data_[i]));
       }
       std::free(data_);
@@ -81,7 +82,7 @@ int DynamicArray<T>::Insert(const T &value) {
   }
 
   int index = size_ - 1;
-  data_[index] = value;
+  new (data_ + index) T(value);
 
   return index;
 }
